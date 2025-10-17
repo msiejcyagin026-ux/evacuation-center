@@ -945,14 +945,30 @@ document.getElementById("nearestButton").onclick = async () => {
 };
 
 
-// My Location button: center map on user
+let followUser = false; // toggle if auto-follow is enabled
+
 document.getElementById("myLocationButton").onclick = () => {
   if (!userMarker) return alert("📍 Your location is not available yet");
-
+  followUser = true; // enable follow
   const userPos = userMarker.getLatLng();
   map.setView(userPos, 16); // zoom to user
   userMarker.openPopup();
 };
+
+// Disable auto-follow when user manually drags the map
+map.on('dragstart', () => {
+  followUser = false; // user is controlling map, stop auto-follow
+});
+
+// Optional: if you have a watchPosition, only update view when followUser is true
+navigator.geolocation.watchPosition((pos) => {
+  const latlng = [pos.coords.latitude, pos.coords.longitude];
+  userMarker.setLatLng(latlng);
+  if (followUser) {
+    map.setView(latlng, 16);
+  }
+});
+
 
 
 
